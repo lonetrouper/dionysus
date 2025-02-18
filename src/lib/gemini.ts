@@ -1,12 +1,13 @@
-import { GoogleGenerativeAI} from '@google/generative-ai'
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { Document } from "@langchain/core/documents";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash'
-}) 
+  model: "gemini-1.5-flash",
+});
 
 export const getAICommitSummary = async (diff: string) => {
-   const response = await model.generateContent([
+  const response = await model.generateContent([
     `You are an expert programmer, and you are trying to summarize a git diff.
 Reminders about the git diff format:
 For every file, there are a few metadata lines, like (for example):
@@ -35,9 +36,31 @@ Most commits will have less comments than this examples list.
 The last comment does not include the file name,
 because there were more than two relevant files in the hypothetical commit.
 Do not include parts of the example in your summary.
-It is given only as an example of appropriate comments.`,`Please summarise the following diff file: \n\n${diff}`
-   ]) 
-   return response.response.text()
-}
+It is given only as an example of appropriate comments.`,
+    `Please summarise the following diff file: \n\n${diff}`,
+  ]);
+  return response.response.text();
+};
 
-console.log("hello")
+export const summariseCode = async (doc: Document) => {
+  const code = doc.pageContent.slice(0, 10000);
+  const response = await model.generateContent([
+    `You are an intelligent senior software engineer who specializes in onboarding junior software engineers onto projects.
+        You are onboarding a junior software engineer who is new to the project and you are trying to explain the purpose of ${doc.metadata.source} file.
+        Here is the source code of the file: 
+        --- 
+        ${code}
+        ---
+        Please give a summary of no more than 100 words of the code above`,
+  ]);
+  return response.response.text();
+};
+
+export const generateEmbedding = async (summary: string) => {
+  const model = genAI.getGenerativeModel({
+    model: "text-embedding-004",
+  });
+  const result = await model.embedContent(summary);
+  const embedding = result.embedding;
+  return embedding.values;
+};
