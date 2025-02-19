@@ -42,18 +42,30 @@ It is given only as an example of appropriate comments.`,
   return response.response.text();
 };
 
+const delay = (ms: number) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export const summariseCode = async (doc: Document) => {
-  const code = doc.pageContent.slice(0, 10000);
-  const response = await model.generateContent([
-    `You are an intelligent senior software engineer who specializes in onboarding junior software engineers onto projects.
+  console.log("getting summary for", doc.metadata.source)
+  try {
+    const code = doc.pageContent.slice(0, 10000);
+    const response = await model.generateContent([
+      `You are an intelligent senior software engineer who specializes in onboarding junior software engineers onto projects.
         You are onboarding a junior software engineer who is new to the project and you are trying to explain the purpose of ${doc.metadata.source} file.
         Here is the source code of the file: 
         --- 
         ${code}
         ---
         Please give a summary of no more than 100 words of the code above`,
-  ]);
-  return response.response.text();
+    ]);
+    const output = response.response.text();
+    await delay(1000);
+    return output;
+  } catch (error) {
+    console.error("Error summarising code",doc.metadata, error);
+    return "";
+  }
 };
 
 export const generateEmbedding = async (summary: string) => {
