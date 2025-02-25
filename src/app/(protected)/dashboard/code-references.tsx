@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Tabs, TabsContent } from "~/components/ui/tabs";
-import { Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { lucario } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { cn } from "~/lib/utils";
 
@@ -17,6 +17,7 @@ const CodeReferences = ({ filesReferences }: Props) => {
         <div className="flex gap-2 overflow-scroll rounded-md bg-gray-200 p-1">
           {filesReferences.map((file) => (
             <button
+            onClick={() => setTab(file.fileName)}
               key={file.fileName}
               className={cn(
                 "whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted",
@@ -25,16 +26,20 @@ const CodeReferences = ({ filesReferences }: Props) => {
                 },
               )}
             >
-                {file.fileName}
+              {file.fileName}
             </button>
           ))}
         </div>
-        {filesReferences.map(file => (
-            <TabsContent key={file.fileName} value={file.fileName} className="max-h-[40vh] overflow-scroll max-w-7xl rounded-md">
-                <SyntaxHighlighter language="typescript" style={lucario}>
-                    {file.sourceCode}
-                </SyntaxHighlighter>
-            </TabsContent>
+        {filesReferences.map((file) => (
+          <TabsContent
+            key={file.fileName}
+            value={file.fileName}
+            className="max-w-7xl max-h-[40vh] overflow-scroll rounded-md"
+          >
+            <SyntaxHighlighter language="typescript" style={lucario}>
+              {file.sourceCode}
+            </SyntaxHighlighter>
+          </TabsContent>
         ))}
       </Tabs>
     </div>
