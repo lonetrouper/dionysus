@@ -36,8 +36,9 @@ export const uploadFile = async (
       uploadTask.on(
         "state_changed",
         (snapshot) => {
-          const progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100,
+          );
           if (setProgress) {
             setProgress(progress);
           }
@@ -55,7 +56,7 @@ export const uploadFile = async (
         },
         () => {
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-            resolve(downloadURL);
+            resolve(downloadURL as string);
           });
         },
       );
